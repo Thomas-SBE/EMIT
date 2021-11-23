@@ -1,0 +1,22 @@
+# Ignore all
+*
+
+# Unignore all files with extension recursivly
+!/**/
+
+# Unignore all files with extensions
+!*.*
+
+# Remove build
+/build
+
+# Accept Makefile
+!Makefile
+
+# Remove objects
+*.o
+
+# Remove VSCode temp folder
+/.vscode
+
+!.gitignore
