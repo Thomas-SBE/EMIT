@@ -1,1 +1,1 @@
-#EMIT - Extended & More Intuitive Terminal
+# 🖥️ EMIT - Extended & More Intuitive Terminal

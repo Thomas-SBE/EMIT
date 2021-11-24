@@ -37,7 +37,10 @@ char* EMITColor::digest(std::vector<void*> &freelist)
         tf[1] = 47+fcolor;
         strcat(data, tf);
     }
-    if(decorator == EMIT_DECORATOR_RESET){strcat(data, ";0\0");}
+    if(decorator & EMIT_DECORATOR_RESET){strcat(data, ";0\0");}
+    if(decorator & EMIT_DECORATOR_BOLD){strcat(data, ";1\0");}
+    if(decorator & EMIT_DECORATOR_REVERSED){strcat(data, ";7\0");}
+    if(decorator & EMIT_DECORATOR_UNDERLINE){strcat(data, ";4\0");}
     strcat(data, "m\0");
     return data;
 }
@@ -64,12 +67,23 @@ EMITBuffer::~EMITBuffer()
 
 void EMITBuffer::render() { for(int i = 0; i < buff_size; i++) { printf("%s%c%s", buffer[i].prefix_code, buffer[i].data, buffer[i].sufix_code); } }
 
+void EMITBuffer::dchar(char c, EMITPoint position, EMITColor color)
+{
+    if(position.x >= dimensions.x || position.y >= dimensions.y) { printf("EMITException : EMITBuffer overflow, position [%d,%d] exceeds the buffer size !\n", position.x, position.y); exit(1); }
+    char* cls = color.digest(*clrptrs);
+    char* rs = EMITColor(EMIT_DECORATOR_RESET).digest(*clrptrs);
+    buffer[(position.y*dimensions.x)+position.x].prefix_code = cls;
+    buffer[(position.y*dimensions.x)+position.x].sufix_code = rs;
+    buffer[(position.y*dimensions.x)+position.x].data = c;
+}
+
+
 void EMITBuffer::dtext(const char* text, EMITPoint position, EMITColor color)
 {
     char* cls = color.digest(*clrptrs);
     char* rs = EMITColor(EMIT_DECORATOR_RESET).digest(*clrptrs);
     int l = strlen(text);
-    if(position.x > dimensions.x || position.y > dimensions.y || position.x + l > buff_size) { printf("EMITException : EMITBuffer overflow at dtext for positions [%d,%d] !", position.x, position.y); exit(1); }
+    if(position.x > dimensions.x || position.y > dimensions.y || position.x + l > buff_size) { printf("EMITException : EMITBuffer overflow at dtext for positions [%d,%d] !\n", position.x, position.y); exit(1); }
     for(int i = 0; i < l; i++) {
         buffer[(position.y*dimensions.x)+position.x+i].data = text[i];
         buffer[(position.y*dimensions.x)+position.x+i].prefix_code = cls;
@@ -79,7 +93,7 @@ void EMITBuffer::dtext(const char* text, EMITPoint position, EMITColor color)
 
 void EMITBuffer::dframe(EMITRect rect, EMITColor color)
 {
-    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y) { printf("EMITException : EMITBuffer overflow at dframe for positions [%d,%d] sized (%d,%d) !", rect.position.x, rect.position.y, rect.dimensions.x, rect.dimensions.y); exit(1); }
+    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y) { printf("EMITException : EMITBuffer overflow at dframe for positions [%d,%d] sized (%d,%d) !\n", rect.position.x, rect.position.y, rect.dimensions.x, rect.dimensions.y); exit(1); }
     char* pf = color.digest(*clrptrs);
     char* rs = EMITColor(EMIT_DECORATOR_RESET).digest(*clrptrs);
     for(int i = rect.position.x; i < rect.position.x + rect.dimensions.x; i++)
@@ -93,3 +107,21 @@ void EMITBuffer::dframe(EMITRect rect, EMITColor color)
         }
     }
 }
+
+void EMITBuffer::dcrect(char c, EMITRect rect, EMITColor color)
+{
+    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y) { printf("EMITException : EMITBuffer overflow at drect for positions [%d,%d] sized (%d,%d) !\n", rect.position.x, rect.position.y, rect.dimensions.x, rect.dimensions.y); exit(1); }
+    char* pf = color.digest(*clrptrs);
+    char* rs = EMITColor(EMIT_DECORATOR_RESET).digest(*clrptrs);
+    for(int i = rect.position.x; i < rect.position.x + rect.dimensions.x; i++)
+    {
+        for(int y = rect.position.y; y < rect.position.y + rect.dimensions.y; y++)
+        {
+            buffer[(y*dimensions.x)+i].prefix_code = pf;
+            buffer[(y*dimensions.x)+i].sufix_code = rs;
+            buffer[(y*dimensions.x)+i].data = c;
+        }
+    }
+}
+
+void EMITBuffer::drect(EMITRect rect, EMITColor color) { this->dcrect(' ', rect, color); }

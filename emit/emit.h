@@ -61,6 +61,9 @@ class EMITBuffer
         EMITBuffer(int width, int height);
         ~EMITBuffer();
         void render();
+        void dchar(char c, EMITPoint position, EMITColor color);
         void dtext(const char* text, EMITPoint position, EMITColor color);
         void dframe(EMITRect rect, EMITColor color);
+        void dcrect(char c, EMITRect rect, EMITColor color);
+        void drect(EMITRect rect, EMITColor color);
 };
