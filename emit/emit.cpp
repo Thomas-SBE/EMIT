@@ -78,12 +78,12 @@ void EMITBuffer::dchar(char c, EMITPoint position, EMITColor color)
 }
 
 
-void EMITBuffer::dtext(const char* text, EMITPoint position, EMITColor color)
+void EMITBuffer::dtext(const wchar_t* text, EMITPoint position, EMITColor color)
 {
     char* cls = color.digest(*clrptrs);
     char* rs = EMITColor(EMIT_DECORATOR_RESET).digest(*clrptrs);
-    int l = strlen(text);
-    if(position.x > dimensions.x || position.y > dimensions.y || position.x + l > buff_size) { printf("EMITException : EMITBuffer overflow at dtext for positions [%d,%d] !\n", position.x, position.y); exit(1); }
+    int l = wcslen(text);
+    if(position.x > dimensions.x || position.y > dimensions.y || position.x + l > buff_size) { wprintf(L"EMITException : EMITBuffer overflow at dtext for positions [%d,%d] !\n", position.x, position.y); exit(1); }
     for(int i = 0; i < l; i++) {
         buffer[(position.y*dimensions.x)+position.x+i].data = text[i];
         buffer[(position.y*dimensions.x)+position.x+i].prefix_code = cls;
@@ -125,3 +125,28 @@ void EMITBuffer::dcrect(char c, EMITRect rect, EMITColor color)
 }
 
 void EMITBuffer::drect(EMITRect rect, EMITColor color) { this->dcrect(' ', rect, color); }
+
+void EMITBuffer::dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, char flags)
+{
+    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y) { printf("EMITException : EMITBuffer overflow at dtextarea for positions [%d,%d] sized (%d,%d) !\n", rect.position.x, rect.position.y, rect.dimensions.x, rect.dimensions.y); exit(1); }
+    if(flags & (EMIT_TEXT_JUSTIFY_LEFT | EMIT_TEXT_JUSTIFY_CENTER) || flags & (EMIT_TEXT_JUSTIFY_LEFT | EMIT_TEXT_JUSTIFY_RIGHT) || flags & (EMIT_TEXT_JUSTIFY_RIGHT | EMIT_TEXT_JUSTIFY_CENTER)) { printf("EMITException : EMITBuffer @dtextarea : Invalid flags combinaison !\n");}
+    EMITPoint cpt = EMITPoint(0, 0);
+    std::wstring _t = L"";
+    const wchar_t* c;
+    for(c = text; *c != '\0'; c++)
+    {
+        _t.push_back(*c);
+        if(*c == ' ' && flags & EMIT_TEXT_WORDBREAK)
+        {
+            if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
+            this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
+            cpt.x += _t.size();
+            _t.clear();
+        }
+    }
+    if(_t.size() > 0) 
+    {
+        if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
+        this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
+    }
+}
