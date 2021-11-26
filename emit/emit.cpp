@@ -65,9 +65,11 @@ EMITBuffer::~EMITBuffer()
     free(buffer);
 }
 
+EMITPoint EMITBuffer::getDimensions() { return dimensions; }
+
 void EMITBuffer::render() { for(int i = 0; i < buff_size; i++) { printf("%s%c%s", buffer[i].prefix_code, buffer[i].data, buffer[i].sufix_code); } }
 
-void EMITBuffer::dchar(char c, EMITPoint position, EMITColor color)
+void EMITBuffer::dchar(const wchar_t c, EMITPoint position, EMITColor color)
 {
     if(position.x >= dimensions.x || position.y >= dimensions.y) { printf("EMITException : EMITBuffer overflow, position [%d,%d] exceeds the buffer size !\n", position.x, position.y); exit(1); }
     char* cls = color.digest(*clrptrs);
@@ -136,17 +138,52 @@ void EMITBuffer::dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, 
     for(c = text; *c != '\0'; c++)
     {
         _t.push_back(*c);
-        if(*c == ' ' && flags & EMIT_TEXT_WORDBREAK)
+        if(flags & EMIT_TEXT_WORDBREAK)
         {
+            if(*c != ' ') continue;
             if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
             this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
             cpt.x += _t.size();
             _t.clear();
+        }else{
+            if(cpt.x == 0 && *c == ' ') continue;
+            if(cpt.x >= rect.dimensions.x) { cpt.x = 0; cpt.y++; }
+            this->dchar(*c, EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
+            cpt.x++;
         }
     }
-    if(_t.size() > 0) 
+    if(_t.size() > 0 && flags & EMIT_TEXT_WORDBREAK) 
     {
         if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
         this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
     }
+}
+
+void EMITBuffer::dbuffer(EMITBuffer* sub_buffer, EMITPoint position)
+{
+    if(sub_buffer->getDimensions().x + position.x >= dimensions.x || sub_buffer->getDimensions().y + position.y >= dimensions.y)
+    { printf("EMITException : EMITBuffer@dbuffer : Exceeded the base buffer size\n"); }
+
+    for(int i = 0; i < sub_buffer->buff_size; i++)
+    {
+        buffer[position.x+(i%sub_buffer->getDimensions().x)+((position.y*dimensions.x)+(i/sub_buffer->getDimensions().x*dimensions.x))].data = sub_buffer->buffer[i].data;
+        buffer[position.x+(i%sub_buffer->getDimensions().x)+((position.y*dimensions.x)+(i/sub_buffer->getDimensions().x*dimensions.x))].prefix_code = sub_buffer->buffer[i].prefix_code;
+        buffer[position.x+(i%sub_buffer->getDimensions().x)+((position.y*dimensions.x)+(i/sub_buffer->getDimensions().x*dimensions.x))].sufix_code = sub_buffer->buffer[i].sufix_code;
+    }
+}
+
+std::wstring EMITTextUtil::inlinetxt(const wchar_t* text, int width, char flags){
+    std::wstring s = std::wstring(text);
+    int l = s.size();
+    if(flags != 2 && flags != 4 && flags != 8) { printf("EMITException : EMITTextUtil@inlinetext : Invalid flag !\n"); }
+    if(flags & EMIT_TEXT_JUSTIFY_CENTER)
+    {
+        s.insert(s.begin(), (width-l)/2, L' ');
+        s.insert(s.end(), (width-l)/2+1, L' ');
+    }else if(flags & EMIT_TEXT_JUSTIFY_RIGHT){
+        s.insert(s.begin(), (width-l), L' ');
+    }else if(flags & EMIT_TEXT_JUSTIFY_LEFT){
+        s.insert(s.end(), (width-l), L' ');
+    }
+    return s;
 }

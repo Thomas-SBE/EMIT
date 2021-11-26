@@ -11,7 +11,7 @@
 #include "emitcst.h"
 
 // --------------  Structure des cellules (P/D/S) -------------- //
-struct emit_cell { char* prefix_code; char data; char* sufix_code; };
+struct emit_cell { char* prefix_code; wchar_t data; char* sufix_code; };
 typedef emit_cell* EMITCell;
 
 // --------------  Color ( Decorations & stuff ) -------------- //
@@ -48,6 +48,13 @@ class EMITRect
         EMITRect(int x, int y, int w, int h);
 };
 
+// --------------  Utilitaires , Gestion des Text -------------- //
+
+namespace EMITTextUtil
+{
+    std::wstring inlinetxt(const wchar_t* text, int width, char flags);
+}
+
 // --------------  Buffer ( Gestion des cellules ) -------------- //
 class EMITBuffer
 {
@@ -61,10 +68,12 @@ class EMITBuffer
         EMITBuffer(int width, int height);
         ~EMITBuffer();
         void render();
-        void dchar(char c, EMITPoint position, EMITColor color);
+        EMITPoint getDimensions();
+        void dchar(const wchar_t c, EMITPoint position, EMITColor color);
         void dtext(const wchar_t* text, EMITPoint position, EMITColor color);
         void dframe(EMITRect rect, EMITColor color);
         void dcrect(char c, EMITRect rect, EMITColor color);
         void drect(EMITRect rect, EMITColor color);
         void dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, char flags);
+        void dbuffer(EMITBuffer* sub_buffer, EMITPoint position);
 };
