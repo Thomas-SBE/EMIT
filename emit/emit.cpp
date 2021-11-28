@@ -137,11 +137,12 @@ void EMITBuffer::dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, 
     const wchar_t* c;
     for(c = text; *c != '\0'; c++)
     {
+        if(*c == '\n'){ this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color); _t.clear(); cpt.x = 0; cpt.y++; continue; }
         _t.push_back(*c);
         if(flags & EMIT_TEXT_WORDBREAK)
         {
             if(*c != ' ') continue;
-            if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
+            if(_t.size() > (long unsigned int)(rect.dimensions.x - cpt.x)) { cpt.x = 0; cpt.y++; }
             this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
             cpt.x += _t.size();
             _t.clear();
@@ -154,7 +155,7 @@ void EMITBuffer::dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, 
     }
     if(_t.size() > 0 && flags & EMIT_TEXT_WORDBREAK) 
     {
-        if(_t.size() > rect.dimensions.x - cpt.x) { cpt.x = 0; cpt.y++; }
+        if(_t.size() > (long unsigned int)(rect.dimensions.x - cpt.x)) { cpt.x = 0; cpt.y++; }
         this->dtext(_t.c_str(), EMITPoint(rect.position.x + cpt.x, rect.position.y + cpt.y), color);
     }
 }
@@ -172,6 +173,8 @@ void EMITBuffer::dbuffer(EMITBuffer* sub_buffer, EMITPoint position)
     }
 }
 
+void EMITBuffer::dblank(EMITRect rect) { this->dcrect(' ', rect, EMITColor()); }
+
 std::wstring EMITTextUtil::inlinetxt(const wchar_t* text, int width, char flags){
     std::wstring s = std::wstring(text);
     int l = s.size();
@@ -186,4 +189,11 @@ std::wstring EMITTextUtil::inlinetxt(const wchar_t* text, int width, char flags)
         s.insert(s.end(), (width-l), L' ');
     }
     return s;
+}
+
+std::wstring EMITBuffer::gword(EMITRect rect)
+{
+    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y)
+    { printf("EMITException : EMITBuffer@gword : Rect exceeds buffer size.\n"); exit(1); }
+    std::wstring _s = std::wstring();
 }

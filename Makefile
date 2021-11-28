@@ -1,7 +1,7 @@
 CPP := g++
 CFLAGS := -std=c++98 -Wall -Wextra -pedantic -ggdb -Wno-unused-variable -Wno-unused-parameter
 EXE := ./build/app 
-ORIGIN := main.o
+ORIGIN := demo.o
 INCLUDES_FOLDER := ./emit
 
 FILES := ./emit/emit.o
