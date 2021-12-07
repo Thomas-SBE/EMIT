@@ -69,7 +69,6 @@ class EMITBuffer
         ~EMITBuffer();
         void render();
         EMITPoint getDimensions();
-        std::wstring gword(EMITRect rect);
         void dchar(const wchar_t c, EMITPoint position, EMITColor color);
         void dtext(const wchar_t* text, EMITPoint position, EMITColor color);
         void dframe(EMITRect rect, EMITColor color);
@@ -78,4 +77,5 @@ class EMITBuffer
         void dtextarea(const wchar_t* text, EMITRect rect, EMITColor color, char flags);
         void dbuffer(EMITBuffer* sub_buffer, EMITPoint position);
         void dblank(EMITRect rect);
+        void dline(const wchar_t c, EMITPoint start, EMITPoint end, EMITColor color);
 };

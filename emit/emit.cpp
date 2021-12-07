@@ -191,9 +191,16 @@ std::wstring EMITTextUtil::inlinetxt(const wchar_t* text, int width, char flags)
     return s;
 }
 
-std::wstring EMITBuffer::gword(EMITRect rect)
+void EMITBuffer::dline(const wchar_t c, EMITPoint start, EMITPoint end, EMITColor color)
 {
-    if(rect.position.x > dimensions.x || rect.position.y > dimensions.y || rect.position.x + rect.dimensions.x > dimensions.x || rect.position.y + rect.dimensions.y > dimensions.y)
-    { printf("EMITException : EMITBuffer@gword : Rect exceeds buffer size.\n"); exit(1); }
-    std::wstring _s = std::wstring();
+    int dx = end.x - start.x;
+    int dy = end.y - start.y;
+    int D = 2*dy - dx;
+    int y = start.y;
+    for(int x = start.x; x <= end.x; x++)
+    {
+        this->dchar(c, EMITPoint(x,y), color);
+        if(D>0) { y++; D -= 2*dx; }
+        D += 2*dy;
+    }
 }

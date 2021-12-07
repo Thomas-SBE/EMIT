@@ -19,4 +19,6 @@
 # Remove VSCode temp folder
 /.vscode
 
+/.idea
+
 !.gitignore

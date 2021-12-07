@@ -18,6 +18,9 @@ int main()
     buff->drect(EMITRect(0,29,94,1), EMITColor(0, EMIT_COLOR_GREEN, 0));
     buff->dtext(L"This library is currently UNIX exclusive !", EMITPoint(1, 29), EMITColor(EMIT_COLOR_BLACK, EMIT_COLOR_GREEN, EMIT_DECORATOR_UNDERLINE));
 
+    // MISC
+    buff->dline(L'#', EMITPoint(2,2), EMITPoint(92,28), EMITColor(EMIT_COLOR_RED, 0, 0));
+
     buff->render();
     
     delete buff;
