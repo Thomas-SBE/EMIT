@@ -12,5 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: prepare
+      run: mkdir ./build
     - name: make
       run: make
