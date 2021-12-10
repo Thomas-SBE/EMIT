@@ -12,7 +12,6 @@ $(EXE) : $(ORIGIN) $(FILES)
 	$(CPP) $(CFLAGS) -o $@ $^ -I$(INCLUDES_FOLDER)
 
 %.o : %.cpp
-	clear
 	$(CPP) $(CFLAGS) -o $@ -c $< -I$(INCLUDES_FOLDER)
 
 clean : 
