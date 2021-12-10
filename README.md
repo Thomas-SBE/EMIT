@@ -6,9 +6,10 @@
   <img src='https://img.shields.io/badge/Languages%20:-C%20%2F%20C%2B%2B-blueviolet' alt="Language C C++"/>
   <img src='https://img.shields.io/badge/Platforms%20:-UNIX--based-informational' alt="UNIX based"/>
   <img src='https://img.shields.io/github/last-commit/Thomas-SBE/EMIT?color=success&label=Last%20Commit%20%3A&logo=github' alt="Last commit"/>
-  <img src='https://img.shields.io/github/workflow/status/Thomas-SBE/EMIT/c-cpp?label=Last%20Build%20Status%20%3A&logo=github' alt="Last build pass"/>
+  <img src='https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FThomas-SBE%2FEMIT%2Fbadge%3Fref%3Dmain&style=flat&label=Last%20Make%20Build' alt="Last build pass"/>
   <br/>
   <img src='https://img.shields.io/badge/Current%20Implementations%20Stage%20%3A-Stage%201%20%3A%20Static%20Canvas%20Display-blueviolet' alt="Last build pass"/>
+   
 </p>
 
 **EMIT** or *Extended & More Interactive Terminal* library is for **C++** program makers who wants a little more from their terminal outputs. From displaying graphs, graphical user interfaces or simple imagery, EMIT allows you to make *buffers* that can be drawn on, and then rendered to the terminal. Combined with the *EMIT Window* which makes buffers *"refresh-able"* you can dynamize your terminal to your needs !
