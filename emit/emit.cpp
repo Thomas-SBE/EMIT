@@ -204,3 +204,19 @@ void EMITBuffer::dline(const wchar_t c, EMITPoint start, EMITPoint end, EMITColo
         D += 2*dy;
     }
 }
+
+void EMITBuffer::shift_up(int times) { printf("\033[%dA\r", times); }
+
+void EMITBuffer::clear()
+{
+    this->shift_up(this->dimensions.y);
+    std::vector< void* >::iterator i;
+    for(i = clrptrs->begin(); i != clrptrs->end(); i++) free(*i);
+    clrptrs->clear();
+    for(int x = 0; x < buff_size; x++){
+        buffer[x].data = ' ';
+        buffer[x].prefix_code = nullstr;
+        buffer[x].sufix_code = nullstr;
+    }
+}
+

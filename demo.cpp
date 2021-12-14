@@ -1,4 +1,9 @@
 #include <iostream>
+#include <termios.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "emit.h"
 
@@ -22,6 +27,32 @@ int main()
     buff->dline(L'#', EMITPoint(2,2), EMITPoint(92,28), EMITColor(EMIT_COLOR_RED, 0, 0));
 
     buff->render();
-    
+
+    // Waiting for user input
+    struct termios oldSettings, newSettings;
+    tcgetattr(fileno(stdin), &oldSettings);
+    newSettings = oldSettings;
+    newSettings.c_lflag &= (~ICANON & ~ECHO);
+    tcsetattr(fileno(stdin), TCSANOW, &newSettings);
+    while(1) 
+    { 
+        fd_set set;
+        struct timeval tv;
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+        FD_ZERO(&set);
+        FD_SET(fileno(stdin), &set);
+        int res = select(fileno(stdin)+1, &set, NULL, NULL, &tv);
+        if(res > 0) { char c; read(fileno(stdin), &c, 1); break; }
+    }
+    tcsetattr(fileno(stdin), TCSANOW, &oldSettings);
+
+    buff->clear();
+
+    buff->dframe(EMITRect(0,0,94,29), EMITColor(EMIT_COLOR_MAGENTA, 0, 0));
+    buff->dtext(EMITTextUtil::inlinetxt(L"Buffer has been refreshed !\0", 90, EMIT_TEXT_JUSTIFY_CENTER).c_str(), EMITPoint(1, 15), EMITColor(0,0,0));
+
+    buff->render();
+
     delete buff;
 }

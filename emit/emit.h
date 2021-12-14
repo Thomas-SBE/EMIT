@@ -64,10 +64,13 @@ class EMITBuffer
         EMITPoint dimensions;
         std::vector< void* >* clrptrs;
         char* nullstr;
+    protected:
+        static void shift_up(int times);
     public:
         EMITBuffer(int width, int height);
         ~EMITBuffer();
         void render();
+        void clear();
         EMITPoint getDimensions();
         void dchar(const wchar_t c, EMITPoint position, EMITColor color);
         void dtext(const wchar_t* text, EMITPoint position, EMITColor color);
